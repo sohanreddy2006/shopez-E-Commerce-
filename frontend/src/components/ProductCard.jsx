@@ -1,10 +1,8 @@
-import { Eye, Heart, ShoppingBag, Star } from 'lucide-react';
+import { Eye, ShoppingBag, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
-import { useWishlist } from '../context/WishlistContext';
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-IN', {
@@ -16,12 +14,9 @@ const formatPrice = (value) =>
 const ProductCard = ({ product, onError }) => {
   const { user } = useAuth();
   const { addToCart } = useCart();
-  const { showToast } = useToast();
-  const { isInWishlist, toggleWishlist } = useWishlist();
   const navigate = useNavigate();
   const finalPrice = product.price - (product.price * product.discount) / 100;
   const outOfStock = product.stock === 0;
-  const inWishlist = user ? isInWishlist(product._id) : false;
 
   const shopNow = async () => {
     if (!user) {
@@ -35,14 +30,6 @@ const ProductCard = ({ product, onError }) => {
     } catch (error) {
       onError?.(getErrorMessage(error));
     }
-  };
-
-  const handleWishlist = async (event) => {
-    event.stopPropagation();
-    if (!user) { navigate('/login'); return; }
-    const result = await toggleWishlist(product);
-    if (result) showToast('Added to wishlist', 'info');
-    else showToast('Removed from wishlist');
   };
 
   return (
@@ -74,11 +61,6 @@ const ProductCard = ({ product, onError }) => {
           <Link className="btn btn-outline-secondary icon-button" to={`/products/${product._id}`} title="View details">
             <Eye size={18} />
           </Link>
-          {user && (
-            <button className={`wishlist-btn ${inWishlist ? 'active' : ''}`} type="button" onClick={handleWishlist} title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}>
-              <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
-            </button>
-          )}
         </div>
       </div>
     </article>

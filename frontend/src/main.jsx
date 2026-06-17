@@ -7,7 +7,6 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
-import { WishlistProvider } from './context/WishlistContext';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -16,9 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ToastProvider>
         <AuthProvider>
           <CartProvider>
-            <WishlistProvider>
-              <App />
-            </WishlistProvider>
+            <App />
           </CartProvider>
         </AuthProvider>
       </ToastProvider>

@@ -1,4 +1,4 @@
-import { Heart, LayoutDashboard, LogOut, Moon, PackageSearch, ShoppingCart, Sun, UserRound } from 'lucide-react';
+import { LayoutDashboard, LogOut, Moon, PackageSearch, ShoppingCart, Sun, UserRound } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -45,10 +45,6 @@ const NavBar = () => {
             </NavLink>
             {user ? (
               <>
-                <NavLink className="nav-link" to="/wishlist">
-                  <Heart size={18} />
-                  Wishlist
-                </NavLink>
                 <NavLink className="nav-link" to="/profile">
                   <UserRound size={18} />
                   Profile
