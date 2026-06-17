@@ -2,9 +2,18 @@ import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../components/ProductCard';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 
 const Cart = () => {
   const { cart, cartSubtotal, updateItem, removeItem } = useCart();
+  const { showToast } = useToast();
+
+  const handleRemove = (itemId, title) => {
+    if (window.confirm(`Remove "${title}" from your cart?`)) {
+      removeItem(itemId);
+      showToast('Item removed from cart');
+    }
+  };
 
   return (
     <section className="container page-block">
@@ -31,7 +40,7 @@ const Cart = () => {
 
               return (
                 <article className="cart-item" key={item._id}>
-                  <img src={item.image} alt={item.title} />
+                  <img src={item.image} alt={item.title} loading="lazy" />
                   <div>
                     <h2>{item.title}</h2>
                     <p>{item.selectedSize ? `Size: ${item.selectedSize}` : 'Standard option'}</p>
@@ -47,7 +56,7 @@ const Cart = () => {
                       <Plus size={16} />
                     </button>
                   </div>
-                  <button className="icon-button danger" type="button" title="Remove item" onClick={() => removeItem(item._id)}>
+                  <button className="icon-button danger" type="button" title="Remove item" onClick={() => handleRemove(item._id, item.title)}>
                     <Trash2 size={18} />
                   </button>
                 </article>

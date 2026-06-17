@@ -10,6 +10,7 @@ import OrderDetails from './pages/OrderDetails';
 import ProductDetails from './pages/ProductDetails';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
+import Wishlist from './pages/Wishlist';
 
 const App = () => {
   return (
@@ -21,6 +22,14 @@ const App = () => {
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/cart"
             element={

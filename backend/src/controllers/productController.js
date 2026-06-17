@@ -3,11 +3,15 @@ import Admin from '../models/Admin.js';
 import Product from '../models/Product.js';
 
 export const getProducts = asyncHandler(async (req, res) => {
-  const { search, category, sort = 'featured' } = req.query;
+  const { search, category, sort = 'featured', page = 1, limit = 12 } = req.query;
   const query = {};
 
   if (search) {
-    query.$text = { $search: search };
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+      { brand: { $regex: search, $options: 'i' } }
+    ];
   }
 
   if (category && category !== 'All') {
@@ -16,13 +20,27 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   const sortMap = {
     featured: { isFeatured: -1, createdAt: -1 },
+    newest: { createdAt: -1 },
     priceAsc: { price: 1 },
     priceDesc: { price: -1 },
     rating: { rating: -1 }
   };
 
-  const products = await Product.find(query).sort(sortMap[sort] || sortMap.featured);
-  res.json(products);
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
+  const skip = (pageNum - 1) * limitNum;
+
+  const [products, total] = await Promise.all([
+    Product.find(query).sort(sortMap[sort] || sortMap.featured).skip(skip).limit(limitNum),
+    Product.countDocuments(query)
+  ]);
+
+  res.json({
+    products,
+    page: pageNum,
+    pages: Math.ceil(total / limitNum),
+    total
+  });
 });
 
 export const getFeaturedProducts = asyncHandler(async (req, res) => {

@@ -1,18 +1,23 @@
-import { ArrowLeft, ShoppingBag, ShoppingCart, Star } from 'lucide-react';
+import { Heart, ShoppingBag, ShoppingCart, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/client';
 import Alert from '../components/Alert';
-import Loading from '../components/Loading';
+import Breadcrumbs from '../components/Breadcrumbs';
+import { ProductDetailsSkeleton } from '../components/Skeleton';
 import { formatPrice } from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const { showToast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
@@ -72,22 +77,32 @@ const ProductDetails = () => {
     }
   };
 
-  if (loading) return <Loading label="Loading product" />;
+  if (loading) return <ProductDetailsSkeleton />;
   if (!product) return <div className="container py-5"><Alert message={error || 'Product unavailable'} /></div>;
 
   const finalPrice = product.price - (product.price * product.discount) / 100;
+  const inWishlist = user ? isInWishlist(product._id) : false;
+
+  const handleWishlist = async () => {
+    if (!user) { navigate('/login'); return; }
+    const result = await toggleWishlist(product);
+    if (result) showToast('Added to wishlist', 'info');
+    else showToast('Removed from wishlist');
+  };
 
   return (
     <section className="container page-block">
-      <Link className="back-link" to="/">
-        <ArrowLeft size={18} />
-        Back to catalog
-      </Link>
+      <Breadcrumbs
+        paths={[
+          { label: product.category, to: '/?category=' + encodeURIComponent(product.category) },
+          { label: product.title }
+        ]}
+      />
       <Alert message={error} />
       <Alert type="success" message={success} />
       <div className="details-layout">
         <div className="details-media">
-          <img src={product.image} alt={product.title} />
+          <img src={product.image} alt={`${product.title} by ${product.brand}`} />
         </div>
         <div className="details-copy">
           <span className="product-category">{product.category}</span>
@@ -142,6 +157,11 @@ const ProductDetails = () => {
               <ShoppingBag size={18} />
               Shop Now
             </button>
+            {user && (
+              <button className={`wishlist-btn ${inWishlist ? 'active' : ''}`} type="button" onClick={handleWishlist} title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}>
+                <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
+              </button>
+            )}
           </div>
         </div>
       </div>

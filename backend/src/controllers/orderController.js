@@ -96,3 +96,30 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   const savedOrder = await order.save();
   res.json(savedOrder);
 });
+
+export const cancelMyOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+
+  if (order.user.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('You can only cancel your own orders');
+  }
+
+  if (order.status !== 'Placed') {
+    res.status(400);
+    throw new Error('Only orders with status "Placed" can be cancelled');
+  }
+
+  for (const item of order.orderItems) {
+    await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
+  }
+
+  order.status = 'Cancelled';
+  await order.save();
+  res.json(order);
+});

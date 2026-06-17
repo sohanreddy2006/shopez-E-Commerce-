@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/client';
 import Alert from '../components/Alert';
-import Loading from '../components/Loading';
+import { ProfileSkeleton } from '../components/Skeleton';
 import { formatPrice } from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 
@@ -120,7 +120,7 @@ const Profile = () => {
         <section className="info-panel">
           <h2>Orders</h2>
           {loading ? (
-            <Loading label="Loading orders" />
+            <ProfileSkeleton />
           ) : orders.length ? (
             <div className="order-list">
               {orders.map((order) => (

@@ -3,7 +3,7 @@ import asyncHandler from '../middleware/asyncHandler.js';
 import User from '../models/User.js';
 
 const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'development-secret', {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '7d'
   });
 };

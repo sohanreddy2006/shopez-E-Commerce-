@@ -90,7 +90,7 @@ const Checkout = () => {
             </label>
             <label>
               Mobile
-              <input className="form-control" name="phone" value={form.phone} onChange={handleChange} required />
+              <input className="form-control" name="phone" value={form.phone} onChange={handleChange} required pattern="[0-9]{10}" title="Enter a 10-digit mobile number" placeholder="10-digit mobile number" />
             </label>
             <label className="wide">
               Address

@@ -2,8 +2,9 @@ import { PackagePlus, RefreshCcw, Save, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import api, { getErrorMessage } from '../api/client';
 import Alert from '../components/Alert';
-import Loading from '../components/Loading';
+import { AdminSkeleton } from '../components/Skeleton';
 import { formatPrice } from '../components/ProductCard';
+import { useToast } from '../context/ToastContext';
 
 const emptyProduct = {
   title: '',
@@ -28,6 +29,7 @@ const AdminDashboard = () => {
   const [settings, setSettings] = useState({ bannerTitle: '', bannerSubtitle: '', bannerImage: '', categories: [] });
   const [productForm, setProductForm] = useState(emptyProduct);
   const [editingId, setEditingId] = useState('');
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -37,13 +39,13 @@ const AdminDashboard = () => {
       setLoading(true);
       const [summaryResponse, productResponse, orderResponse, userResponse, settingsResponse] = await Promise.all([
         api.get('/admin/summary'),
-        api.get('/products'),
+        api.get('/products', { params: { limit: 100 } }),
         api.get('/orders/admin/all'),
         api.get('/admin/users'),
         api.get('/admin/settings')
       ]);
       setSummary(summaryResponse.data);
-      setProducts(productResponse.data);
+      setProducts(productResponse.data.products);
       setOrders(orderResponse.data);
       setUsers(userResponse.data);
       setSettings(settingsResponse.data);
@@ -113,8 +115,10 @@ const AdminDashboard = () => {
   };
 
   const deleteProduct = async (productId) => {
+    if (!window.confirm('Delete this product permanently?')) return;
     await api.delete(`/products/${productId}`);
     setProducts((current) => current.filter((product) => product._id !== productId));
+    showToast('Product deleted');
   };
 
   const updateStatus = async (orderId, status) => {
@@ -135,7 +139,7 @@ const AdminDashboard = () => {
     setMessage('Settings saved');
   };
 
-  if (loading) return <Loading label="Loading admin" />;
+  if (loading) return <AdminSkeleton />;
 
   return (
     <section className="container page-block admin-page">

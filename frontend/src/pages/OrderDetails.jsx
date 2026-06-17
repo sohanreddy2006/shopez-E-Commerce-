@@ -1,13 +1,16 @@
-import { CheckCircle2, PackageCheck } from 'lucide-react';
+import { CheckCircle2, PackageCheck, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/client';
 import Alert from '../components/Alert';
-import Loading from '../components/Loading';
+import Breadcrumbs from '../components/Breadcrumbs';
+import { OrderDetailsSkeleton } from '../components/Skeleton';
 import { formatPrice } from '../components/ProductCard';
+import { useToast } from '../context/ToastContext';
 
 const OrderDetails = () => {
   const { id } = useParams();
+  const { showToast } = useToast();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,10 +30,22 @@ const OrderDetails = () => {
     loadOrder();
   }, [id]);
 
-  if (loading) return <Loading label="Loading order" />;
+  if (loading) return <OrderDetailsSkeleton />;
+
+  const cancelOrder = async () => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      const { data } = await api.put(`/orders/${id}/cancel`);
+      setOrder(data);
+      showToast('Order cancelled successfully');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
 
   return (
     <section className="container page-block">
+      <Breadcrumbs paths={[{ label: 'Profile', to: '/profile' }, { label: 'Order Details' }]} />
       <Alert message={error} />
       {order && (
         <>
@@ -60,7 +75,7 @@ const OrderDetails = () => {
             <h2>Products</h2>
             {order.orderItems.map((item) => (
               <div className="order-item" key={`${item.product}-${item.title}`}>
-                <img src={item.image} alt={item.title} />
+                <img src={item.image} alt={item.title} loading="lazy" />
                 <div>
                   <strong>{item.title}</strong>
                   <p>Quantity: {item.quantity}</p>
@@ -75,10 +90,18 @@ const OrderDetails = () => {
               <strong>{formatPrice(order.totalPrice)}</strong>
             </div>
           </section>
-          <Link className="btn btn-outline-primary" to="/profile">
-            <PackageCheck size={18} />
-            View My Orders
-          </Link>
+          <div className="d-flex gap-2">
+            <Link className="btn btn-outline-primary" to="/profile">
+              <PackageCheck size={18} />
+              View My Orders
+            </Link>
+            {order.status === 'Placed' && (
+              <button className="btn btn-outline-danger" type="button" onClick={cancelOrder}>
+                <XCircle size={18} />
+                Cancel Order
+              </button>
+            )}
+          </div>
         </>
       )}
     </section>

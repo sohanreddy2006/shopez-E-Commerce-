@@ -1,11 +1,13 @@
-import { LayoutDashboard, LogOut, PackageSearch, ShoppingCart, UserRound } from 'lucide-react';
+import { Heart, LayoutDashboard, LogOut, Moon, PackageSearch, ShoppingCart, Sun, UserRound } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 
 const NavBar = () => {
   const { user, isAdmin, logout } = useAuth();
   const { cartCount } = useCart();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -43,6 +45,10 @@ const NavBar = () => {
             </NavLink>
             {user ? (
               <>
+                <NavLink className="nav-link" to="/wishlist">
+                  <Heart size={18} />
+                  Wishlist
+                </NavLink>
                 <NavLink className="nav-link" to="/profile">
                   <UserRound size={18} />
                   Profile
@@ -57,6 +63,9 @@ const NavBar = () => {
                   <LogOut size={18} />
                   Logout
                 </button>
+                <button className="nav-link nav-button" type="button" onClick={toggleTheme} title="Toggle theme">
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
               </>
             ) : (
               <>
@@ -66,6 +75,9 @@ const NavBar = () => {
                 <NavLink className="btn btn-primary btn-sm" to="/register">
                   Create Account
                 </NavLink>
+                <button className="nav-link nav-button" type="button" onClick={toggleTheme} title="Toggle theme">
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
               </>
             )}
           </div>
