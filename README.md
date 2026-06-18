@@ -48,11 +48,3 @@ The API runs on `http://localhost:5000` and the React app runs on `http://localh
 - Admin dashboard for products, orders, users, banner image, and categories
 - Protected routes and role-based authorization
 
-## Project Documents
-
-- `PROJECT_INFORMATION_TEXT.txt`: all provided project instructions and screenshot text.
-- `STAGE_3_BACKEND_REVIEW.txt`: backend explanation and API review.
-- `STAGE_4_FRONTEND_REVIEW.txt`: frontend explanation and page review.
-- `STAGE_5_TESTING_REPORT.txt`: progressive testing report.
-- `STAGE_6_FINAL_SUBMISSION_MATERIAL.txt`: final submission notes, demo flow, and presentation script.
-- `SUBMISSION_CHECKLIST.txt`: quick checklist before uploading links.
